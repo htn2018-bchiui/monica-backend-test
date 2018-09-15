@@ -25,9 +25,9 @@ app.get('/', (req, res) => {
   res.send(`${process.env.TEST}`); // testing if environment varaibles work
 });
 
-// webhook works 
+// webhook works with ngrok
 // we send message then twilio replies
-// could be used as a confirmation for when we send robot the message
+// could be used as a confirmation for when we send robot the message, it confirms that it got it
 app.post('/sms', (req, res) => {
   // Start our TwiML response.
   const twiml = new MessagingResponse();
@@ -46,16 +46,26 @@ app.post('/sms', (req, res) => {
 
 // post request from twilio to personal number
 app.post("/mms", (req,res) => {
+
+  // robot makes request to a url's specific endpoint with the JSON payload that contains patient name, rgb_picture: bytes, lidar_picture: bytes
+  // here we take that info to form a message for the phone
+  // then send the message 
+
+  // FOR TESTING
+  // use postman to configure request body
   client.messages
     .create({
-      body: 'The lego man',
+      body: `Some patient ${req.body.text} is hurt`,
       from: TWILIONUM,
-      mediaUrl: 'https://c1.staticflickr.com/3/2899/14341091933_1e92e62d12_b.jpg',
+      mediaUrl: `${req.body.picture}`,
       to: PHONENUM
     })
     .then(message => {
       console.log(message.sid);
       console.log(message.subresourceUris.media);
+    })
+    .catch(err => {
+      console.error(err);
     })
     .done();
 });
