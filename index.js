@@ -11,7 +11,7 @@ var authToken = process.env.AUTHTOKEN;
 
 const client = require('twilio')(accountSid, authToken);
 
-const TWILIONUM = "+18077870567";
+const TWILIONUM = process.env.TWILIONUM;
 
 app.get('/', (req, res) => {
   res.send(`${process.env.TEST}`); // testing if environment varaibles work
