@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 
 
 app.get('/', (req, res) => {
-  res.send(`${process.env.TEST}`); // testing if environment varaibles work
+  res.send(`${process.env.TEST}`); 
 });
 
 // webhook works with ngrok
@@ -46,10 +46,11 @@ app.post('/sms', (req, res) => {
   res.end(twiml.toString());
 });
 
+// send initial alert to responders
 app.post("/alert", (req,res) => {
   client.messages
     .create({
-      body: `Alerting that patient: ${req.body.patient_name} has fallen`,
+      body: `Alerting that patient: ${req.body.patient_name} has fallen down`,
       from: TWILIONUM,
       to: PHONENUM
     })
@@ -73,9 +74,9 @@ app.post("/mms", (req,res) => {
   // use postman to configure request body
   client.messages
     .create({
-      body: `Some patient ${req.body.patient_name} is hurt`,
+      body: `You patient, ${req.body.patient_name} is hurt`,
       from: TWILIONUM,
-      mediaUrl: `${req.body.rbg_picture}, ${req.body.lidar_picture}`,
+      mediaUrl: [`${req.body.rgb_picture}`, `${req.body.lidar_picture}`],
       to: PHONENUM
     })
     .then(message => {
