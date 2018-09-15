@@ -1,5 +1,9 @@
-const express = require("express");
-require('dotenv').config();
+// https://www.twilio.com/blog/2017/10/how-to-receive-and-respond-to-a-text-message-with-node-js-express-and-twilio.html
+// https://www.twilio.com/docs/sms/quickstart/node
+// https://www.twilio.com/docs/libraries/node/usage-guide
+
+const express = require("express"); 
+require('dotenv').config(); // for env variables
 
 const port = process.env.PORT || 3000;
 
