@@ -11,8 +11,8 @@ const port = process.env.PORT || 3000;
 
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
-var accountSid = process.env.ACCOUNTSID;
-var authToken = process.env.AUTHTOKEN;
+const accountSid = process.env.ACCOUNTSID;
+const authToken = process.env.AUTHTOKEN;
 const TWILIONUM = process.env.TWILIONUM;
 const PHONENUM = process.env.PHONENUM;
 
@@ -21,9 +21,8 @@ const client = require('twilio')(accountSid, authToken);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
 app.get('/', (req, res) => {
-  res.send(`${process.env.TEST}`); 
+  res.send(`${process.env.TEST} this home page text should show on screen`); 
 });
 
 // webhook works with ngrok
@@ -34,7 +33,7 @@ app.post('/sms', (req, res) => {
   const twiml = new MessagingResponse();
 
   // Add a text message.
-  const msg = twiml.message('Check out this sweet owl!');
+  const msg = twiml.message('Message has been received!');
 
   // Add a picture message.
   msg.media('https://demo.twilio.com/owl.png');
@@ -52,7 +51,7 @@ app.post("/alert", (req,res) => {
     .create({
       body: `Alerting that patient: ${req.body.patient_name} has fallen down`,
       from: TWILIONUM,
-      to: PHONENUM
+      to: PHONENUM,
     })
     .then(message => {
       console.log(message.sid);
@@ -61,6 +60,9 @@ app.post("/alert", (req,res) => {
       console.error(err);
     })
     .done();
+
+    console.log(res);
+    return res;
 });
 
 // post request from twilio to personal number , sends the pictures
@@ -74,7 +76,7 @@ app.post("/mms", (req,res) => {
   // use postman to configure request body
   client.messages
     .create({
-      body: `You patient, ${req.body.patient_name} is hurt`,
+      body: `Your patient, ${req.body.patient_name} is hurt`,
       from: TWILIONUM,
       mediaUrl: [`${req.body.rgb_picture}`, `${req.body.lidar_picture}`],
       to: PHONENUM
@@ -87,6 +89,8 @@ app.post("/mms", (req,res) => {
       console.error(err);
     })
     .done();
+
+    console.log(res.CallStatus);
 });
 
 // when robot sends the video link
