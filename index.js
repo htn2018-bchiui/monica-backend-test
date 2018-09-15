@@ -3,6 +3,7 @@
 // https://www.twilio.com/docs/libraries/node/usage-guide
 
 const express = require("express"); 
+const bodyParser = require("body-parser");
 const app = express();
 require('dotenv').config(); // for env variables
 
@@ -16,10 +17,10 @@ const TWILIONUM = process.env.TWILIONUM;
 const PHONENUM = process.env.PHONENUM;
 
 const client = require('twilio')(accountSid, authToken);
-const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 
 app.get('/', (req, res) => {
   res.send(`${process.env.TEST}`); // testing if environment varaibles work
@@ -41,10 +42,27 @@ app.post('/sms', (req, res) => {
   res.writeHead(200, {'Content-Type': 'text/xml'});
   console.log(twiml.toString());
   console.log(req.body); // to see the extra details the robot will send to the personal number
+  res.send()
   res.end(twiml.toString());
 });
 
-// post request from twilio to personal number
+app.post("/alert", (req,res) => {
+  client.messages
+    .create({
+      body: `Alerting that patient: ${req.body.patient_name} has fallen`,
+      from: TWILIONUM,
+      to: PHONENUM
+    })
+    .then(message => {
+      console.log(message.sid);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .done();
+});
+
+// post request from twilio to personal number , sends the pictures
 app.post("/mms", (req,res) => {
 
   // robot makes request to a url's specific endpoint with the JSON payload that contains patient name, rgb_picture: bytes, lidar_picture: bytes
@@ -55,14 +73,31 @@ app.post("/mms", (req,res) => {
   // use postman to configure request body
   client.messages
     .create({
-      body: `Some patient ${req.body.text} is hurt`,
+      body: `Some patient ${req.body.patient_name} is hurt`,
       from: TWILIONUM,
-      mediaUrl: `${req.body.picture}`,
+      mediaUrl: `${req.body.rbg_picture}, ${req.body.lidar_picture}`,
       to: PHONENUM
     })
     .then(message => {
       console.log(message.sid);
       console.log(message.subresourceUris.media);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+    .done();
+});
+
+// when robot sends the video link
+app.post("/video", (req,res) => {
+  client.messages
+    .create({
+      body: `Patient ${req.body.patient_name} video is here: ${req.body.video_link}`,
+      from: TWILIONUM,
+      to: PHONENUM
+    })
+    .then(message => {
+      console.log(message);
     })
     .catch(err => {
       console.error(err);
